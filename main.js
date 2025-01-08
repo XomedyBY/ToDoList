@@ -35,6 +35,32 @@
         return list;
     }
 
+    function createTodoItem(name){
+        let item = document.createElement('li');
+        let buttonGroup = document.createElement('div');
+        let doneButton = document.createElement('button');
+        let deleteButton = document.createElement('button');
+
+        item.classList.add('todo__item', 'item');
+        item.textContent = name;
+
+        buttonGroup.classList.add('btn-wrapper');
+        doneButton.classList.add('done-btn', 'btn');
+        doneButton.textContent = "Готово";
+        deleteButton.classList.add('remove-btn', 'btn');
+        deleteButton.textContent = "Удалить";
+
+        buttonGroup.append(doneButton);
+        buttonGroup.append(deleteButton);
+        item.append(buttonGroup);
+
+        return{
+            item,
+            doneButton,
+            deleteButton
+        };
+    }
+
     document.addEventListener('DOMContentLoaded', function(){
         let container = document.getElementById('todo-app');
 
@@ -45,5 +71,33 @@
         container.append(todoAppTitle);
         container.append(todoAppForm.form);
         container.append(todoAppList);
+
+        todoAppForm.form.addEventListener('submit', function(e){
+            e.preventDefault();
+
+            if (!todoAppForm.input.value){
+                return;
+            }  
+            let todoItem = createTodoItem(todoAppForm.input.value);
+            todoItem.doneButton.addEventListener('click', function(){
+                todoItem.item.classList.toggle('--done');
+                todoItem.doneButton.classList.toggle('--yellow');
+                if (todoItem.doneButton.textContent != "Не готово"){
+                    todoItem.doneButton.textContent = "Не готово";
+                }
+                else{
+                    todoItem.doneButton.textContent = "Готово";
+                }
+                                                
+            });
+
+            todoItem.deleteButton.addEventListener('click',function(){
+                if (confirm('Вы уверены?')){
+                    todoItem.item.remove();
+                }
+            });
+            todoAppForm.input.value = '';
+            todoAppList.append(todoItem.item);
+        })
     });
 })();
