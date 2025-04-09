@@ -1,4 +1,25 @@
 (function(){
+    // Преобразуем данные в JSON 
+    function dataToJson(data){
+        return JSON.stringify(data);
+    }
+
+    // Преобразует JSON строку в данные
+    function jsonToData(data){
+        return JSON.parse(data);
+    }
+
+    // Получаю данные из LocalStorage
+    function getData(key){
+        return localStorage.getItem(key);
+    }
+
+    // Сохраняем данные в LocalStorage под указанным ключом
+    function setData(key, data){
+        localStorage.setItem(key, data);
+    }
+
+
     // Создаю и возвращаю заголовок приложения
     function createAppTitle(title){
         let appTitle = document.createElement('h2');
@@ -47,12 +68,30 @@
         buttonGroup.classList.add('btn-wrapper');
         doneButton.classList.add('done-btn', 'btn');
         doneButton.textContent = "Готово";
+        doneButton.addEventListener('click', function(){
+            item.classList.toggle('--done');
+            doneButton.classList.toggle('--yellow');
+            if (doneButton.textContent != "Не готово"){
+                doneButton.textContent = "Не готово";
+            }
+            else{
+                doneButton.textContent = "Готово";
+            }
+                                            
+        });
+
         deleteButton.classList.add('remove-btn', 'btn');
         deleteButton.textContent = "Удалить";
+        deleteButton.addEventListener('click',function(){
+            if (confirm('Вы уверены?')){
+                item.remove();
+            }
+        });
 
         buttonGroup.append(doneButton);
         buttonGroup.append(deleteButton);
         item.append(buttonGroup);
+
 
         return{
             item,
@@ -68,6 +107,18 @@
         let todoAppForm = createTodoItemForm()
         let todoAppList = createTodoList();
 
+        const key = 'todoList';
+        let list = jsonToData(getData(key));
+        if (list){
+            for (let i = 0; i < list.length; i++){
+                let todoItem = createTodoItem(list[i]);
+                todoAppList.append(todoItem.item);
+            }
+        }
+        else{
+            list = [];
+        }
+
         container.append(todoAppTitle);
         container.append(todoAppForm.form);
         container.append(todoAppList);
@@ -77,27 +128,15 @@
 
             if (!todoAppForm.input.value){
                 return;
-            }  
+            }
             let todoItem = createTodoItem(todoAppForm.input.value);
-            todoItem.doneButton.addEventListener('click', function(){
-                todoItem.item.classList.toggle('--done');
-                todoItem.doneButton.classList.toggle('--yellow');
-                if (todoItem.doneButton.textContent != "Не готово"){
-                    todoItem.doneButton.textContent = "Не готово";
-                }
-                else{
-                    todoItem.doneButton.textContent = "Готово";
-                }
-                                                
-            });
-
-            todoItem.deleteButton.addEventListener('click',function(){
-                if (confirm('Вы уверены?')){
-                    todoItem.item.remove();
-                }
-            });
+            list.push(todoAppForm.input.value);
+            setData(key, dataToJson(list));
+            ////////////////////////////////////////////////////////////
             todoAppForm.input.value = '';
             todoAppList.append(todoItem.item);
-        })
+        });
+
+        setData(key, dataToJson(list));
     });
 })();
